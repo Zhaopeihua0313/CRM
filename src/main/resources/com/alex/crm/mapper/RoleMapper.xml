@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.RoleMapper">
+  <resultMap id="BaseResultMap" type="Role">
+    <id column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="sn" property="sn" />
+    <collection property="permissions" select="com.alex.crm.mapper.PermissionMapper.selectByRoleId" column="id" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from role
+    where id = #{id}
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into role (name, sn)
+    values (#{name}, #{sn})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update role
+    set name = #{name},
+      sn = #{sn}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <include refid="baseSelect" />
+    from role
+    where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    <include refid="baseSelect" />
+    from role
+  </select>
+  <select id="selectList" resultType="Role">
+    <include refid="baseSelect" />
+    from role
+  </select>
+  <sql id="baseSelect">
+    select id, name, sn
+  </sql>
+  <select id="selectByEmployeeId" resultMap="BaseResultMap">
+    select r.id, r.`name`
+    from role r join employee_role er on r.id = er.role_id
+    where er.employee_id = #{eid}
+  </select>
+  <insert id="insertRelation">
+    insert into role_permission (role_id, permission_id) value (#{rid}, #{pid})
+  </insert>
+  <delete id="deleteEmployeeAndRoleRelationByRoleId">
+    delete from employee_role where role_id = #{rid}
+  </delete>
+  <delete id="deleteRoleAndPermissionRelationByRoleId">
+    delete from role_permission where role_id = #{rid}
+  </delete>
+  <select id="selectSnByEmployeeId" resultType="String">
+    select r.sn
+    from role r join employee_role er on r.id = er.role_id
+    where er.employee_id = #{eid}
+  </select>
+</mapper>

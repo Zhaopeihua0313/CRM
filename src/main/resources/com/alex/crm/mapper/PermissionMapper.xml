@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.PermissionMapper">
+  <resultMap id="BaseResultMap" type="Permission">
+    <id column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="expression" property="expression" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from permission
+    where id = #{id}
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into permission (name, expression)
+    values (#{name}, #{expression})
+  </insert>
+  <select id="selectAll" resultMap="BaseResultMap">
+    <include refid="baseSelect" />
+    from permission
+  </select>
+  <select id="selectList" resultType="Permission">
+    <include refid="baseSelect" />
+    from permission
+  </select>
+  <sql id="baseSelect">
+    select id, `name`, expression
+  </sql>
+  <select id="selectAllExpression" resultType="String">
+    select expression from permission;
+  </select>
+  <select id="selectByRoleId" resultMap="BaseResultMap">
+    select p.id, p.`name`
+    from permission p join role_permission rp on p.id = rp.permission_id
+    where role_id = #{rid}
+  </select>
+  <delete id="deleteRoleAndPermissionRelationByPermissionId">
+    delete from role_permission
+    where permission_id = #{pid}
+  </delete>
+  <select id="selectPermissionsByEmployeeId" resultType="String">
+    select expression
+    from permission p
+    join role_permission rp on p.id = rp.permission_id
+    join employee_role er on rp.role_id = er.role_id
+    where employee_id = #{eid}
+  </select>
+</mapper>

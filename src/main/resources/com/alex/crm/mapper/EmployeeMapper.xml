@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.EmployeeMapper">
+  <delete id="deleteByPrimaryKey">
+    delete from employee
+    where id = #{id}
+  </delete>
+  <delete id="batchDeleteEmployee">
+    delete from employee
+    where id in
+    <foreach collection="array" open="(" separator="," close=")" item="eid">
+        #{eid}
+    </foreach>
+  </delete>
+  <delete id="deleteEmployeeAndRoleRelationsByEmployeeIds">
+    delete from employee_role
+    where employee_id in
+    <foreach collection="array" open="(" separator="," close=")" item="eid">
+      #{eid}
+    </foreach>
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into employee (`name`, password, email, age, admin, dept_id)
+    values (#{name}, #{password}, #{email}, #{age}, #{admin}, #{dept.id})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update employee
+    set `name` = #{name},
+      email = #{email},
+      age = #{age},
+      admin = #{admin}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    <include refid="baseSelect"/>, e.dept_id department_id
+    from employee e
+    where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    <include refid="baseSelect" />
+    from employee e
+  </select>
+  <select id="selectList" resultMap="BaseResultMap">
+    <include refid="baseSelect"/>, d.`name` department_name
+    from employee e left join department d on e.dept_id = d.id
+    <include refid="base_where"/>
+    order by e.id asc
+  </select>
+  <sql id="baseSelect">
+    select e.id, e.`name`, e.password, e.email, e.age, e.admin
+  </sql>
+  <resultMap id="BaseResultMap" type="Employee">
+    <id column="id" property="id" />
+    <result column="name" property="name" />
+    <result column="password" property="password" />
+    <result column="email" property="email" />
+    <result column="age" property="age" />
+    <result column="admin" property="admin" />
+    <association property="dept" javaType="Department" columnPrefix="department_"><!--封装嵌套的单个对象到property指定的属性上-->
+      <id column="id" property="id" />
+      <result column="name" property="name" />
+    </association>
+    <collection property="roles" select="com.alex.crm.mapper.RoleMapper.selectByEmployeeId" column="id"/><!--发送额外sql, 将结果封装到property指定的属性上-->
+  </resultMap>
+  <sql id="base_where">
+    <where>
+      <if test="keyword != null">
+        and (e.`name` like concat('%', #{keyword}, '%') or e.email like concat('%', #{keyword}, '%'))
+      </if>
+      <if test="deptId != -1">
+        and e.dept_id = #{deptId}
+      </if>
+    </where>
+  </sql>
+  <!--<select id="selectByInfo" resultMap="BaseResultMap">
+    select id, `name`, email, age, admin from employee where `name` = #{username} and password = #{password}
+  </select>-->
+  <insert id="insertRelation">
+    insert into employee_role (employee_id, role_id)
+    values (#{eid}, #{rid})
+  </insert>
+  <delete id="deleteEmployeeAndRoleRelationByEmployeeId">
+    delete from employee_role where employee_id = #{eid}
+  </delete>
+  <select id="selectEmployeeByUsername" resultMap="BaseResultMap">
+    select e.id, e.`name`, e.password, e.admin from employee e where e.`name` = #{name}
+  </select>
+  <select id="selectEmployeeByRoleSn" resultMap="BaseResultMap">
+    select distinct e.id, e.`name`
+    from employee e
+    left join employee_role er on e.id = er.employee_id
+    left join role r on er.role_id = r.id
+    where r.sn in
+    <foreach collection="array" open="(" separator="," close=")" item="item"><!-- 通过foreach拼接出IN语句的字符串 -->
+      #{item}
+    </foreach>
+  </select>
+</mapper>

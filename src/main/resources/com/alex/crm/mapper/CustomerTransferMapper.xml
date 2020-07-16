@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.CustomerTransferMapper">
+  <resultMap id="BaseResultMap" type="CustomerTransfer">
+    <id column="id" property="id" />
+    <result column="operate_time" property="operateTime" />
+    <result column="reason" property="reason" />
+    <association property="customer" columnPrefix="c_" javaType="Customer">
+      <id column="id" property="id"/>
+      <result column="name" property="name"/>
+    </association>
+    <association property="operator" columnPrefix="eope_" javaType="Employee">
+      <id column="id" property="id"/>
+      <result column="name" property="name"/>
+    </association>
+    <association property="oldSeller" columnPrefix="eold_" javaType="Employee">
+      <id column="id" property="id"/>
+      <result column="name" property="name"/>
+    </association>
+    <association property="newSeller" columnPrefix="enew_" javaType="Employee">
+      <id column="id" property="id"/>
+      <result column="name" property="name"/>
+    </association>
+  </resultMap>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into customer_transfer (customer_id, operator_id, operate_time, oldSeller_id, newSeller_id, reason)
+    values (#{customer.id}, #{operator.id}, now(), #{oldSeller.id}, #{newSeller.id}, #{reason})
+  </insert>
+  <select id="selectList" resultMap="BaseResultMap">
+    select cf.id, c.id c_id, c.`name` c_name, eope.id eope_id, eope.`name` eope_name, cf.operate_time, eold.id eold_id, eold.`name` eold_name, enew.id enew_id, enew.`name` enew_name, cf.reason
+    from customer_transfer cf
+    left join customer c on cf.customer_id = c.id
+    left join employee eope on cf.operator_id = eope.id
+    left join employee eold on cf.oldSeller_id = eold.id
+    left join employee enew on cf.newSeller_id = enew.id
+    <where>
+      <if test="keyword != null">
+        and c.name like concat('%', #{keyword} ,'%')
+      </if>
+    </where>
+  </select>
+</mapper>

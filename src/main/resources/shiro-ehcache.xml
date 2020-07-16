@@ -1,0 +1,16 @@
+<ehcache>
+    <!--
+        maxElementsInMemory:最大储存对象个数
+        eternal:是否永久储存
+        timeToIdleSeconds:最大空闲时间
+        timeToLiveSeconds:最大生存时间
+        memoryStoreEvictionPolicy:清除缓存算法
+     -->
+    <defaultCache
+            maxElementsInMemory="1000"
+            eternal="false"
+            timeToIdleSeconds="120"
+            timeToLiveSeconds="120"
+            memoryStoreEvictionPolicy="LRU">
+    </defaultCache>
+</ehcache>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- shiro过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager" />
+        <!-- loginUrl代表两个意思，1、登录页面地址 2、登录表单提交地址 -->
+        <property name="loginUrl" value="/login.html"/>
+        <!-- 过滤规则 -->
+        <property name="filterChainDefinitions">
+            <!-- 静态资源匿名访问，其余资源需要登录才能访问 -->
+            <value>
+                /js/**=anon
+                /images/**=anon
+                /css/**=anon
+                /logout.do=logout
+                /**=authc
+            </value>
+        </property>
+        <!--设置当前使用的认证过滤器-->
+        <property name="filters">
+            <map>
+                <entry key="authc" value-ref="crmFormAuthenticationFilter"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- 安全管理器 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 注入数据源 -->
+        <property name="realm" ref="crmRealm" />
+        <!-- 注入缓存管理器 -->
+        <property name="cacheManager" ref="cacheManager" />
+    </bean>
+
+    <!-- 开启cglib动态代理的必备条件 -->
+    <aop:config proxy-target-class="true" />
+
+    <!-- 开启shiro注解扫描器 -->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <!-- 注入安全管理器 -->
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <!-- 新的密码匹配器 -->
+    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <!-- 指定加密算法 -->
+        <property name="hashAlgorithmName" value="MD5" />
+        <!-- 指定加密次数 -->
+        <property name="hashIterations" value="1" />
+    </bean>
+
+    <!-- EhCache缓存管理器 -->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <!-- 设置配置文件 -->
+        <property name="cacheManagerConfigFile" value="classpath:shiro-ehcache.xml"/>
+    </bean>
+
+</beans>

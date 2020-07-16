@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.SystemDictionaryMapper">
+  <resultMap id="BaseResultMap" type="com.alex.crm.domain.SystemDictionary">
+    <id column="id" property="id" />
+    <result column="sn" property="sn" />
+    <result column="title" property="title" />
+    <result column="intro" property="intro" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from system_dictionary
+    where id = #{id}
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into system_dictionary (sn, title, intro)
+    values (#{sn}, #{title}, #{intro})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update system_dictionary
+    set sn = #{sn},
+      title = #{title},
+      intro = #{intro}
+    where id = #{id}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select id, sn, title, intro
+    from system_dictionary
+    where id = #{id}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, sn, title, intro
+    from system_dictionary
+  </select>
+  <select id="selectList" resultMap="BaseResultMap">
+    select id, sn, title, intro from system_dictionary
+  </select>
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.alex.crm.mapper.CustomerTraceHistoryMapper">
+  <resultMap id="BaseResultMap" type="CustomerTraceHistory">
+    <id column="id" property="id" />
+    <result column="trace_time" property="traceTime" />
+    <result column="trace_details" property="traceDetails" />
+    <result column="trace_result" property="traceResult" />
+    <result column="remark" property="remark" />
+    <result column="input_time" property="inputTime" />
+    <result column="type" property="type" />
+    <association property="customer" columnPrefix="c_" javaType="Customer">
+      <id column="id" property="id" />
+      <result column="name" property="name" />
+    </association>
+    <association property="traceType" columnPrefix="i_" javaType="SystemDictionaryItem">
+      <id column="id" property="id" />
+      <result column="title" property="title" />
+    </association>
+    <association property="inputUser" columnPrefix="e_" javaType="Employee">
+      <id column="id" property="id" />
+      <result column="name" property="name" />
+    </association>
+  </resultMap>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into customer_trace_history (trace_time, trace_details, trace_type_id, trace_result, remark, customer_id, input_user_id, input_time, `type`)
+    values (#{traceTime}, #{traceDetails}, #{traceType.id}, #{traceResult}, #{remark}, #{customer.id}, #{inputUser.id}, now(), #{type})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update customer_trace_history
+    set
+      trace_details = #{traceDetails},
+      trace_type_id = #{traceType.id},
+      trace_result = #{traceResult},
+      remark = #{remark}
+    where id = #{id}
+  </update>
+  <select id="selectList" resultMap="BaseResultMap">
+    select h.id, c.id c_id, c.`name` c_name, h.trace_time, h.trace_details, i.id i_id, i.title i_title, h.trace_result, h.remark, e.id e_id, e.name e_name, h.input_time, h.`type`
+    from customer_trace_history h
+    left join customer c on h.customer_id = c.id
+    left join system_dictionary_item i on h.trace_type_id = i.id
+    left join employee e on h.input_user_id = e.id
+    <where>
+      <if test="keyword != null">
+        and (c.`name` like concat('%', #{keyword}, '%'))
+      </if>
+      <if test="type > -1">
+        and h.`type` = #{type}
+      </if>
+    </where>
+  </select>
+</mapper>

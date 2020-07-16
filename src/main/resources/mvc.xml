@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 引入applicationContext.xml -->
+    <import resource="classpath:applicationContext.xml"/>
+    <!-- 引入shiro.xml -->
+    <import resource="classpath:shiro.xml"/>
+
+    <!-- Spring MVC 的注解驱动器 -->
+    <mvc:annotation-driven/>
+
+    <!-- JSP视图解释器 -->
+    <!--<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        &lt;!&ndash; 视图前缀 &ndash;&gt;
+        <property name="prefix" value="/WEB-INF/views/"/>
+        &lt;!&ndash; 视图后缀 &ndash;&gt;
+        <property name="suffix" value=".jsp"/>
+    </bean>-->
+
+    <!--配置FreeMarker的模板路径 -->
+    <bean class="com.alex.crm.shiro.FreeMarkerConfig">
+        <!-- 配置FreeMarker的文件编码 -->
+        <property name="defaultEncoding" value="UTF-8"/>
+        <!-- 配置FreeMarker寻找模板的路径 -->
+        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
+        <!-- 配置FreeMarker数字格式化 -->
+        <property name="freemarkerSettings">
+            <props>
+                <prop key="number_format">
+                    0.##
+                </prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--FreeMarker视图解析器 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <!-- 是否在model自动把session中的attribute导入进去; -->
+        <property name="exposeSessionAttributes" value="true"/>
+        <!-- 配置逻辑视图自动添加的后缀名 -->
+        <property name="suffix" value=".ftl"/>
+        <!-- 配置视图的输出HTML的contentType -->
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+    </bean>
+
+    <!-- 配置Spring MVC提供的简单异常处理器 -->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <!-- 定义默认的异常处理页面，当该异常类型的注册时使用 -->
+        <property name="defaultErrorView" value="common/error"/>
+        <!-- 定义异常处理页面用来获取异常信息的变量名，默认名为exception -->
+        <property name="exceptionAttribute" value="ex"/>
+        <!-- 定义需要特殊处理的异常，用类名或完全路径名作为key，异常也页名作为值 -->
+        <property name="exceptionMappings">
+            <!-- 根据不同的异常跳转不同的页面 -->
+            <value>
+                org.apache.shiro.authz.UnauthorizedException=common/nopermission
+                <!-- 这里还可以继续扩展不同异常类型的异常处理 -->
+            </value>
+        </property>
+    </bean>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="#{1024*1024*2}"/> <!--限制上传的文件最大大小为2G-->
+    </bean>
+
+    <!--<bean id="freeMarkerConfig" class="com.alex.crm.shiro.FreeMarkerConfig">
+        &lt;!&ndash; 配置freemarker的文件编码 &ndash;&gt;
+        <property name="defaultEncoding" value="UTF-8"/>
+        &lt;!&ndash; 配置freemarker寻找模板的路径 &ndash;&gt;
+        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
+    </bean>-->
+
+    <!-- 注册登录拦截器 -->
+    <!--<mvc:interceptors>
+        &lt;!&ndash; 配置一个拦截器 &ndash;&gt;
+        <mvc:interceptor>
+            &lt;!&ndash; 对哪些资源起拦截作用 &ndash;&gt;
+            <mvc:mapping path="/**"/>
+            &lt;!&ndash; 对哪些资源不起拦截作用 &ndash;&gt;
+            <mvc:exclude-mapping path="/login.do"/>
+            &lt;!&ndash; 哪个是bean拦截器&ndash;&gt;
+            <bean class="com.alex.crm.web.interceptors.CheckLoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>-->
+
+    <!-- 注册权限拦截器 -->
+    <!--<mvc:interceptors>
+        &lt;!&ndash; 配置一个拦截器 &ndash;&gt;
+        <mvc:interceptor>
+            &lt;!&ndash; 对哪些资源起拦截作用 &ndash;&gt;
+            <mvc:mapping path="/**"/>
+            &lt;!&ndash; 对哪些资源不起拦截作用 &ndash;&gt;
+            <mvc:exclude-mapping path="/login.do"/>
+            <mvc:exclude-mapping path="/logout.do"/>
+            &lt;!&ndash; 哪个是bean拦截器&ndash;&gt;
+            <bean class="com.alex.crm.web.interceptors.CheckPermissionInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>-->
+
+</beans>
