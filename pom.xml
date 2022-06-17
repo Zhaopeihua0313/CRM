@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.60</version>
+            <version>1.2.83</version>
         </dependency>
 
         <!-- JSON库:Jackson, 用于Spring MVC响应json，@ResponseBody和@RestController注解需要该Json库支持 -->
